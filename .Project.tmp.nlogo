@@ -3,7 +3,7 @@ globals
   time ; time passed
   incomeMax ; income ceiling
 ]
-
+ 
 turtles-own
 [
   income ;money given per time
@@ -14,10 +14,17 @@ turtles-own
   product3 ; product 1 is needed, product 2 helps increase money, product 3 increases happiness
   happiness ;variable to hold happiness
 ]
+merchants-own
+[
+  sales ;Amount of product sold
+  upkeep ;Revenue needed to stay open
+  reputation ;How well their store is viewed
+]
 
 to setup
     set-initial-state
     createTurtles
+    createMerchants
 end
 
 to set-initial-state
@@ -37,9 +44,20 @@ to createTurtles
   ]
 end
 
+to createMerchants
+  create-merchants agentNum
+  [
+  set sales 0  ;Initial sales of 0
+  set upkeep 0
+  set reputation 0
+  setxy random-xcor random-ycor ;randomly position merchants among turtles
+  set color 100 ; Fixed color for merchants
+  ]
+
 to go
   move-turtles
   update-money
+  buy
   histogram [money] of turtles
   tick
 end
@@ -59,6 +77,18 @@ to update-money
   ]
 end
 
+to buy
+  ask turtles
+  [
+  if product1 = false  ;prioritize food if have none
+    [
+      if wealth > 1
+      [
+        set wealth (wealth - 1)
+        ask one-of merchants [ set sales (sales + 1)]
+      ]
+    ]
+  ]
 
 @#$#@#$#@
 GRAPHICS-WINDOW
