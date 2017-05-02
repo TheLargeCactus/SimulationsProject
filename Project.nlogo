@@ -4,6 +4,8 @@ globals
   incomeMax ; income ceiling
 ]
 
+breed [merchants merchant]
+
 turtles-own
 [
   income ;money given per time
@@ -13,33 +15,82 @@ turtles-own
   product2
   product3 ; product 1 is needed, product 2 helps increase money, product 3 increases happiness
   happiness ;variable to hold happiness
+  class ;variable to determine income of class
+  product1Age ;holds product age
+]
+
+merchants-own
+[
+  sales ;Amount of product sold
+  upkeep ;Revenue needed to stay open
+  reputation ;How well their store is viewed
 ]
 
 to setup
-    set-initial-state
-    createTurtles
+  clear-all
+  set time 0
+  set incomeMax 3
+  setup-plot
+  createTurtles
+  createMerchants
+  reset-ticks
 end
 
-to set-initial-state
-  clear-all
-  reset-ticks
-  set time 0
-  set incomeMax 100.0
+to setup-plot
+  set-plot-x-range 0 10
+  set-plot-y-range 0 5
+  set-histogram-num-bars 10
 end
 
 to createTurtles
-  create-turtles agentNum ;create turtles and run code block inside them
+  create-turtles turtleNum ;create turtles and run code block inside them
   [
+    set product1 false
     set money 0  ;no max money
-    set income random-float incomeMax ;set money per tick
+    set class random 100
+    set product1Age 0
     setxy random-xcor random-ycor ; set position to random
+
+    ifelse class < 50
+    [
+      set income incomeMax * 0.01 ;set money per tick
+    ]
+    [
+      ifelse class < 75 And class > 49
+      [
+        set income incomeMax * 0.02
+      ]
+    [
+      ifelse class < 98 And class > 74
+      [
+        set income incomeMax * 0.1
+      ]
+    [
+      set income incomeMax
+    ]]
+    ]
+
     set color (43 + 6 * (income / incomeMax)) ;set color based on income, lighter means poorer
+  ]
+end
+
+to createMerchants
+  create-merchants merchantNum
+  [
+  set sales 0  ;Initial sales of 0
+  set upkeep 0
+  set reputation 0
+  setxy random-xcor random-ycor ;randomly position merchants among turtles
+  set color 125 ; Fixed color for merchants
   ]
 end
 
 to go
   move-turtles
   update-money
+  buy
+  updateProducts
+  histogram [sales] of merchants
   tick
 end
 
@@ -58,7 +109,37 @@ to update-money
   ]
 end
 
+to updateProducts
+  ask turtles
+  [
+    if product1 = true
+    [
+      set product1Age product1Age + 1
+    ]
 
+  if product1Age > 3
+  [
+    set product1 false
+    set product1Age 0
+  ]
+  ]
+end
+
+to buy
+  ask turtles
+  [
+  if product1 = false  ;prioritize food if have none
+    [
+      if money > 1
+      [
+        set product1 true
+        set money (money - 1)
+        ask one-of merchants [ set sales (sales + 1)]
+
+      ]
+    ]
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -92,11 +173,11 @@ SLIDER
 20
 199
 53
-agentNum
-agentNum
+turtleNum
+turtleNum
 1
-100
-77.0
+1000
+1000.0
 1
 1
 NIL
@@ -135,6 +216,39 @@ NIL
 NIL
 NIL
 0
+
+PLOT
+730
+39
+1300
+537
+Wealth Graph
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" "set-plot-x-range (0.0) (time + 5)"
+PENS
+"pen-0" 1.0 0 -7500403 true "" ""
+
+SLIDER
+30
+155
+202
+188
+merchantNum
+merchantNum
+1
+10
+10.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
