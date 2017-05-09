@@ -2,6 +2,7 @@ globals
 [
   time ; time passed
   incomeMax ; income ceiling
+  product2Bonus ;bonus income from owning product 2
 ]
 
 breed [merchants merchant]
@@ -17,6 +18,8 @@ turtles-own
   happiness ;variable to hold happiness
   class ;variable to determine income of class
   product1Age ;holds product age
+  product2Age
+  product3Age
 ]
 
 merchants-own
@@ -29,18 +32,13 @@ merchants-own
 to setup
   clear-all
   set time 0
-  set incomeMax 3
-  setup-plot
+  set incomeMax 5
+  set product2Bonus 2
   createTurtles
   createMerchants
   reset-ticks
 end
 
-to setup-plot
-  set-plot-x-range 0 10
-  set-plot-y-range 0 5
-  set-histogram-num-bars 10
-end
 
 to createTurtles
   create-turtles turtleNum ;create turtles and run code block inside them
@@ -49,26 +47,29 @@ to createTurtles
     set money 0  ;no max money
     set class random 100
     set product1Age 0
+    set product2Age 0
+    set product3Age 0
     setxy random-xcor random-ycor ; set position to random
 
     ifelse class < 50
     [
-      set income incomeMax * 0.01 ;set money per tick
+      set income 1 + random-float 1 ;set money per tick
     ]
     [
       ifelse class < 75 And class > 49
       [
-        set income incomeMax * 0.02
+        set income 2 + random-float 3
       ]
     [
       ifelse class < 98 And class > 74
       [
-        set income incomeMax * 0.1
+        set income 5 + random-float 5
       ]
     [
-      set income incomeMax
-    ]]
+      set income 10 + random-float 90
     ]
+  ]
+]
 
     set color (43 + 6 * (income / incomeMax)) ;set color based on income, lighter means poorer
   ]
@@ -86,11 +87,10 @@ to createMerchants
 end
 
 to go
-  move-turtles
-  update-money
+  ;move-turtles
+  update-turtles
   buy
   updateProducts
-  histogram [sales] of merchants
   tick
 end
 
@@ -102,10 +102,22 @@ to move-turtles
   ]
 end
 
-to update-money
+to update-turtles
   ask turtles
   [
     set money (money + income)
+    if product2 = true
+    [
+      set money money + product2Bonus
+    ]
+
+    ifelse product3 = true
+    [
+      set happiness happiness + 1
+    ]
+    [
+      set happiness happiness - 1
+    ]
   ]
 end
 
@@ -117,27 +129,69 @@ to updateProducts
       set product1Age product1Age + 1
     ]
 
-  if product1Age > 3
+  if product1Age > random 5
   [
     set product1 false
     set product1Age 0
   ]
+
+  if product2 = true
+  [
+    set product2Age product2Age + 1
   ]
+
+  if product2Age > 1
+  [
+    set product2 false
+    set product2Age 0
+  ]
+
+  if product3 = true
+  [
+    set product3Age product3Age + 1
+  ]
+
+  if product3Age > 5
+  [
+    set product3 false
+    set product3Age 0
+  ]]
 end
 
 to buy
   ask turtles
   [
+
   if product1 = false  ;prioritize food if have none
     [
       if money > 1
       [
         set product1 true
         set money (money - 1)
-        ask one-of merchants [ set sales (sales + 1)]
+        ask min-one-of (merchants)[distance myself] [ set sales (sales + 1)]
 
       ]
     ]
+
+  if product2 = false
+  [
+    if money > 2
+    [
+      set product2 true
+      set money (money - 2)
+      ask min-one-of (merchants) [distance myself] [set sales (sales + 1)]
+    ]
+  ]
+
+  if product3 = false
+  [
+    if money > 1
+    [
+      set product3 true
+      set money (money - 1)
+      ask min-one-of (merchants) [distance myself] [set sales (sales + 1)]
+    ]
+  ]
   ]
 end
 @#$#@#$#@
@@ -218,11 +272,11 @@ NIL
 0
 
 PLOT
-730
+744
 39
 1300
-537
-Wealth Graph
+441
+Merchant sales
 NIL
 NIL
 0.0
@@ -231,9 +285,8 @@ NIL
 10.0
 true
 false
-"" "set-plot-x-range (0.0) (time + 5)"
+"ask merchants [\ncreate-temporary-plot-pen (word who)\nset-plot-pen-color random-float 140\n]\n" "ask merchants [\nset-current-plot-pen (word who)\nplot(sales)\n]"
 PENS
-"pen-0" 1.0 0 -7500403 true "" ""
 
 SLIDER
 30
@@ -249,6 +302,24 @@ merchantNum
 1
 NIL
 HORIZONTAL
+
+PLOT
+746
+529
+1401
+832
+Money Histogram
+Income Bracket
+Number of Turtles
+0.0
+10.0
+0.0
+10.0
+true
+false
+"set-histogram-num-bars 30\nset-plot-x-range 0 100 * ticks + 1\nset-plot-y-range 0 turtleNum + 1" "set-histogram-num-bars 30\nset-plot-x-range 0 100 * ticks + 1\nset-plot-y-range 0 turtleNum + 1"
+PENS
+"default" 1.0 1 -16777216 true "" "histogram [money] of turtles"
 
 @#$#@#$#@
 ## WHAT IS IT?
