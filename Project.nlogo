@@ -44,6 +44,8 @@ to createTurtles
   create-turtles turtleNum ;create turtles and run code block inside them
   [
     set product1 false
+    set product2 false
+    set product3 false
     set money 0  ;no max money
     set class random 100
     set product1Age 0
@@ -87,7 +89,7 @@ to createMerchants
 end
 
 to go
-  ;move-turtles
+  move-turtles
   update-turtles
   buy
   updateProducts
@@ -168,7 +170,7 @@ to buy
       [
         set product1 true
         set money (money - 1)
-        ask min-one-of (merchants)[distance myself] [ set sales (sales + 1)]
+        ask min-one-of (merchants)[distance myself] [ set sales (sales + 1) set money money + 1]
 
       ]
     ]
@@ -179,7 +181,7 @@ to buy
     [
       set product2 true
       set money (money - 2)
-      ask min-one-of (merchants) [distance myself] [set sales (sales + 1)]
+      ask min-one-of (merchants) [distance myself] [set sales (sales + 1) set money money + 2]
     ]
   ]
 
@@ -189,7 +191,7 @@ to buy
     [
       set product3 true
       set money (money - 1)
-      ask min-one-of (merchants) [distance myself] [set sales (sales + 1)]
+      ask min-one-of (merchants) [distance myself] [set sales (sales + 1) set money money + 1]
     ]
   ]
   ]
@@ -231,7 +233,7 @@ turtleNum
 turtleNum
 1
 1000
-1000.0
+230.0
 1
 1
 NIL
@@ -277,8 +279,8 @@ PLOT
 1300
 441
 Merchant sales
-NIL
-NIL
+time
+total sales
 0.0
 10.0
 0.0
@@ -317,7 +319,7 @@ Number of Turtles
 10.0
 true
 false
-"set-histogram-num-bars 30\nset-plot-x-range 0 100 * ticks + 1\nset-plot-y-range 0 turtleNum + 1" "set-histogram-num-bars 30\nset-plot-x-range 0 100 * ticks + 1\nset-plot-y-range 0 turtleNum + 1"
+"set-histogram-num-bars 30\nset-plot-x-range 0 1 + [money] of max-one-of turtles [money] \nset-plot-y-range 0 turtleNum + 1" "set-histogram-num-bars 30\nset-plot-x-range 0  1 + [money] of max-one-of turtles [money]\nset-plot-y-range 0 turtleNum + 1"
 PENS
 "default" 1.0 1 -16777216 true "" "histogram [money] of turtles"
 
