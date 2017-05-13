@@ -89,7 +89,8 @@ to createMerchants
 end
 
 to go
-  move-turtles
+  if turtlesMove
+  [move-turtles]
   update-turtles
   buy
   updateProducts
@@ -322,6 +323,17 @@ false
 "set-histogram-num-bars 30\nset-plot-x-range 0 1 + [money] of max-one-of turtles [money] \nset-plot-y-range 0 turtleNum + 1" "set-histogram-num-bars 30\nset-plot-x-range 0  1 + [money] of max-one-of turtles [money]\nset-plot-y-range 0 turtleNum + 1"
 PENS
 "default" 1.0 1 -16777216 true "" "histogram [money] of turtles"
+
+SWITCH
+76
+116
+197
+149
+turtlesMove
+turtlesMove
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
